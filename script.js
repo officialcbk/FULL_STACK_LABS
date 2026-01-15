@@ -42,7 +42,8 @@ const employees = [
   { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
 ];
 
-// Function to group employees by department
+document.getElementById('current-year').textContent = new Date().getFullYear();
+
 function groupByDepartment(employees) {
   return employees.reduce((acc, employee) => {
     const department = employee.department;
@@ -54,7 +55,6 @@ function groupByDepartment(employees) {
   }, {});
 }
 
-// Display employees by department
 function displayEmployees() {
   const groupedEmployees = groupByDepartment(employees);
   const employeeListContainer = document.getElementById('employee-list');
@@ -77,5 +77,4 @@ function displayEmployees() {
   }
 }
 
-// Call the function once the page is loaded
 window.onload = displayEmployees;
