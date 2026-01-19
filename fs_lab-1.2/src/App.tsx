@@ -1,15 +1,16 @@
 import './App.css'
+import Footer from './components/footer';
+import Header from './components/header';
 
-function App() {
-  
-
+const App = () => {
   return (
-    <>
-      
-    </>
-  )
-}
+    <div>
+      <Header />
+      <Footer />
+    </div>
+  );
+};
 
-export default App
+export default App;
 
 
