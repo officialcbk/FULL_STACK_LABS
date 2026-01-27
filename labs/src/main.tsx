@@ -10,7 +10,6 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-
 const Main = () => {
 
   const [employees, setEmployees] = useState([
@@ -112,6 +111,7 @@ const Main = () => {
             value={formData.department}
             onChange={handleInputChange}
             >
+              
             <option value="Administration">Administration</option>
             <option value="Audit">Audit</option>
             <option value="Banking Operations">Banking Operations</option>
