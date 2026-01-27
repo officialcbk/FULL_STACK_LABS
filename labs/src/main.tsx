@@ -2,7 +2,6 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
-import Employee from './components/Employee';
 import { useState } from 'react';
 
 createRoot(document.getElementById('root')!).render(
@@ -69,7 +68,7 @@ const Main = () => {
             return;
         }
 
-        setEmployees([...employees, { firstName: formData.firstName, lastName: 'New', department: formData.department }]);
+        setEmployees([...employees, { firstName: formData.firstName, lastName: '', department: formData.department }]);
 
         setFormData({ firstName: '', department: 'Administration' });
         setError('');
@@ -82,10 +81,54 @@ const Main = () => {
   return (
     <main>
       <h2>Employee List</h2>
-      <div className="employee-list">
+      <div>
         {employees.map((employee, index) => (
-          <Employee key={index} name={`${employee.firstName} ${employee.lastName}`} position={employee.department} />
-        ))}
+          <div key={index}>
+            {employee.firstName} {employee.lastName} - {employee.department}
+          </div>
+          ))}
+      </div>
+
+      <div>
+        <h3>Add New Employee</h3>
+        <form onSubmit={handleFormSubmit}>
+          <div>
+            <label htmlFor="firstName">First Name:</label>
+            <input
+                type="text"
+                id="firstName"
+                name="firstName"
+                value={formData.firstName}
+                onChange={handleInputChange}
+                required
+            />
+          </div>
+
+          <div>
+          <label htmlFor="department">Department:</label>
+          <select
+            id="department"
+            name="department"
+            value={formData.department}
+            onChange={handleInputChange}
+            >
+            <option value="Administration">Administration</option>
+            <option value="Audit">Audit</option>
+            <option value="Banking Operations">Banking Operations</option>
+            <option value="Communications">Communications</option>
+            <option value="Corporate Services">Corporate Services</option>
+            <option value="Facilities">Facilities</option>
+            <option value="Human Resources">Human Resources</option>
+            <option value="Information Technology">Information Technology</option>
+            <option value="IT Technician">IT Technician</option>
+            </select>
+          </div>
+
+          {error && <p style={{ color: 'red' }}>{error}</p>}
+
+          <button type="submit">Add Employee</button>
+
+        </form>
       </div>
     </main>
   );
