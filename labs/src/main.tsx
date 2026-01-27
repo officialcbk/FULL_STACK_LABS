@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
 import Employee from './components/Employee';
+import { useState } from 'react';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
@@ -10,7 +11,10 @@ createRoot(document.getElementById('root')!).render(
   </StrictMode>,
 )
 
-const employees = [
+
+const Main = () => {
+
+  const [employees, setEmployees] = useState([
   { firstName: 'Zoë', lastName: 'Robins', department: 'Administration' },
   { firstName: 'Madeleine', lastName: 'Madden', department: 'Administration' },
   { firstName: 'Josha', lastName: 'Sadowski', department: 'Audit' },
@@ -52,9 +56,8 @@ const employees = [
   { firstName: 'Tala', lastName: 'Braveheart', department: 'IT Technician' },
   { firstName: 'Iniko', lastName: 'Stonebear', department: 'IT Technician' },
   { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
-]
+]);
 
-const Main = () => {
   return (
     <main>
       <h2>Employee List</h2>
