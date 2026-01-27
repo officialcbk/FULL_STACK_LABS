@@ -58,6 +58,27 @@ const Main = () => {
   { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
 ]);
 
+  const [formData, setFormData] = useState({ firstName: '', department: 'Administration' });
+  const [error, setError] = useState('');
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (formData.firstName.length < 3) {
+            setError('First name must be at least 3 characters long');
+            return;
+        }
+
+        setEmployees([...employees, { firstName: formData.firstName, lastName: 'New', department: formData.department }]);
+
+        setFormData({ firstName: '', department: 'Administration' });
+        setError('');
+    };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
   return (
     <main>
       <h2>Employee List</h2>
