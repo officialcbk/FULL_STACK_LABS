@@ -2,7 +2,8 @@ import employeeRepo from '../apis/employeeRepo';
 
 const employeeService = {
   // Method for creating an employee with validation
-  createEmployee: async (employee: { firstName: string, department: string }) => {
+  createEmployee: async (employee: { firstName: string, lastName: string,department: string }) => {
+
     const validDepartments = [
       'Administration', 
       'Audit', 
@@ -26,7 +27,7 @@ const employeeService = {
     }
 
     // Validation to add employee
-    return employeeRepo.addEmployee(employee);  // Call the repository to add the employee
+    return employeeRepo.addEmployee(employee);  
   },
 };
 
