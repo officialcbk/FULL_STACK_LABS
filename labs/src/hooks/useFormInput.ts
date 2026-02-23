@@ -1,27 +1,23 @@
 import { useState } from 'react';
 
-function useFormInput(initialValue: string, validate: (value: string) => string | null) {
-  const [value, setValue] = useState(initialValue);  
-  const [error, setError] = useState('');  
+export const useFormInput = (startValue: string) => {
+  const [value, setValue] = useState(startValue);
+  const [message, setMessage] = useState('');
 
-  // Update the value of the input field
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setValue(e.target.value);
   };
 
-  // Validate the input and set an error message if invalid
-  const validateInput = () => {
-    const validationError = validate(value); 
-    setError(validationError || ''); 
-    return validationError;  
+  const validate = (check: (val: string) => string) => {
+    const result = check(value);
+    setMessage(result);
+    return result === '';
   };
 
-  return {
-    value,
-    error,
-    handleChange,
-    validateInput,
+  const reset = (newValue: string = '') => {
+    setValue(newValue);
+    setMessage('');
   };
-}
 
-export default useFormInput;
+  return { value, message, handleChange, validate, reset };
+};

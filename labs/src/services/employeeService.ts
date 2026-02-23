@@ -1,34 +1,18 @@
-import employeeRepo from '../apis/employeeRepo'; 
+import { employeeRepo } from '../apis/employeeRepo';
 
-const employeeService = {
-  // Method for creating an employee with validation
-  createEmployee: async (employee: { firstName: string, lastName: string,department: string }) => {
+export const employeeService = {
+  createEmployee: (firstName: string, department: string) => {
+    const validDepts = employeeRepo.getDepartments();
 
-    const validDepartments = [
-      'Administration', 
-      'Audit', 
-      'Banking Operations', 
-      'Communications', 
-      'Corporate Services', 
-      'Facilities', 
-      'Human Resources', 
-      'Information Technology', 
-      'IT Technician'
-    ]; 
-
-    // Validate department exists
-    if (!validDepartments.includes(employee.department)) {
-      return 'Department does not exist';  
+    if (!validDepts.includes(department)) {
+      return { success: false, field: 'department', message: 'That department doesnt exist' };
     }
 
-    // Validate first name (at least 3 characters)
-    if (employee.firstName.length < 3) {
-      return 'First name must be at least 3 characters long';  
+    if (firstName.trim().length < 3) {
+      return { success: false, field: 'firstName', message: 'First name needs at least 3 characters' };
     }
 
-    // Validation to add employee
-    return employeeRepo.addEmployee(employee);  
+    employeeRepo.addEmployee({ firstName: firstName.trim(), lastName: '', department });
+    return { success: true };
   },
 };
-
-export default employeeService;

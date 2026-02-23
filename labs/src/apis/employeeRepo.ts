@@ -1,8 +1,26 @@
-interface Employee {
+export interface Employee {
   firstName: string;
   lastName: string;
   department: string;
 }
+
+export interface DepartmentGroup {
+  department: string;
+  employees: Employee[];
+}
+
+const departments = [
+  'Administration',
+  'Audit',
+  'Banking Operations',
+  'Communications',
+  'Corporate Services',
+  'Facilities',
+  'Financial Services',
+  'Human Resources',
+  'Information Technology',
+  'IT Technician',
+];
 
 let employees: Employee[] = [
   { firstName: 'Zoë', lastName: 'Robins', department: 'Administration' },
@@ -48,17 +66,19 @@ let employees: Employee[] = [
   { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
 ];
 
-const employeeRepo = {
-  // Method to add a new employee to the list
-  addEmployee: (employee: Employee) => {
-    employees.push(employee); 
-    return 'Employee added successfully';  // Return success message
+export const employeeRepo = {
+  getEmployees: () => employees,
+
+  getDepartments: () => departments,
+
+  addEmployee: (emp: Employee) => {
+    employees = [...employees, emp];
   },
 
-  // Method to get all employees
-  getEmployees: () => {
-    return employees;  // Return the list of employees
+  getEmployeesByDepartment: () => {
+    return departments.map((dept) => ({
+      department: dept,
+      employees: employees.filter((emp) => emp.department === dept),
+    }));
   },
 };
-
-export default employeeRepo;

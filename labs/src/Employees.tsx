@@ -1,122 +1,82 @@
 import { useState } from 'react';
+import { useFormInput } from './hooks/useFormInput';
+import { employeeService } from './services/employeeService';
+import { employeeRepo, type DepartmentGroup } from './apis/employeeRepo';
 
 const Employees = () => {
 
-  const [employees, setEmployees] = useState([
-  { firstName: 'Zoë', lastName: 'Robins', department: 'Administration' },
-  { firstName: 'Madeleine', lastName: 'Madden', department: 'Administration' },
-  { firstName: 'Josha', lastName: 'Sadowski', department: 'Audit' },
-  { firstName: 'Kate', lastName: 'Fleetwood', department: 'Audit' },
-  { firstName: 'Priyanka', lastName: 'Bose', department: 'Banking Operations' },
-  { firstName: 'Hammed', lastName: 'Animashuan', department: 'Banking Operations' },
-  { firstName: 'Álvaro', lastName: 'Morte', department: 'Banking Operations' },
-  { firstName: 'Taylor', lastName: 'Napier', department: 'Banking Operations' },
-  { firstName: 'Alan', lastName: 'Simmonds', department: 'Banking Operations' },
-  { firstName: 'Gil', lastName: 'Cardinal', department: 'Communications' },
-  { firstName: 'Richard J.', lastName: 'Lewis', department: 'Communications' },
-  { firstName: 'Randy', lastName: 'Bradshaw', department: 'Corporate Services' },
-  { firstName: 'Tracey', lastName: 'Cook', department: 'Corporate Services' },
-  { firstName: 'Lubomir', lastName: 'Mykytiuk', department: 'Corporate Services' },
-  { firstName: 'Dakota', lastName: 'House', department: 'Facilities' },
-  { firstName: 'Lori Lea', lastName: 'Okemah', department: 'Facilities' },
-  { firstName: 'Renae', lastName: 'Morrisseau', department: 'Facilities' },
-  { firstName: 'Rick', lastName: 'Belcourt', department: 'Facilities' },
-  { firstName: 'Selina', lastName: 'Hanusa', department: 'Financial Services' },
-  { firstName: 'Buffy', lastName: 'Gaudry', department: 'Financial Services' },
-  { firstName: 'Shaneen Ann', lastName: 'Fox', department: 'Financial Services' },
-  { firstName: 'Allan', lastName: 'Little', department: 'Financial Services' },
-  { firstName: 'Danny', lastName: 'Rabbit', department: 'Financial Services' },
-  { firstName: 'Jesse Ed', lastName: 'Azure', department: 'Human Resources' },
-  { firstName: 'Stacy', lastName: 'Da Silva', department: 'Human Resources' },
-  { firstName: 'Vladimír', lastName: 'Valenta', department: 'Human Resources' },
-  { firstName: 'Samone', lastName: 'Sayeses-Whitney', department: 'Human Resources' },
-  { firstName: 'Paul', lastName: 'Coeur', department: 'Human Resources' },
-  { firstName: 'Graham', lastName: 'Greene', department: 'Information Technology' },
-  { firstName: 'Sandika', lastName: 'Evergreen', department: 'Information Technology' },
-  { firstName: 'Jennifer', lastName: 'Rodriguez', department: 'Information Technology' },
-  { firstName: 'Aiyana', lastName: 'Littlebear', department: 'IT Technician' },
-  { firstName: 'Inara', lastName: 'Thunderbird', department: 'IT Technician' },
-  { firstName: 'Kaya', lastName: 'Runningbrook', department: 'IT Technician' },
-  { firstName: 'Elara', lastName: 'Firehawk', department: 'IT Technician' },
-  { firstName: 'Siona', lastName: 'Moonflower', department: 'IT Technician' },
-  { firstName: 'Kaiyu', lastName: 'Greywolf', department: 'IT Technician' },
-  { firstName: 'Ayawamat', lastName: 'Nightwind', department: 'IT Technician' },
-  { firstName: 'Tala', lastName: 'Braveheart', department: 'IT Technician' },
-  { firstName: 'Iniko', lastName: 'Stonebear', department: 'IT Technician' },
-  { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
-]);
+  const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>(employeeRepo.getEmployeesByDepartment());
 
-  const [formData, setFormData] = useState({ firstName: '', department: 'Administration' });
-  const [error, setError] = useState('');
+  const departments = employeeRepo.getDepartments();
 
-  const handleFormSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
+  const firstName = useFormInput('');
+  const department = useFormInput(departments[0]);
 
-        if (formData.firstName.length < 3) {
-            setError('First name must be at least 3 characters long');
-            return;
-        }
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-        setEmployees([...employees, { firstName: formData.firstName, lastName: '', department: formData.department }]);
+    const isValid = firstName.validate((val) => {
+      if (val.trim().length < 3) return 'First name needs at least 3 characters';
+      return '';
+    });
 
-        setFormData({ firstName: '', department: 'Administration' });
-        setError('');
-    };
+    if (!isValid) return;
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
-    };
+    const result = employeeService.createEmployee(firstName.value, department.value);
+
+    if (!result.success) {
+      if (result.field === 'firstName') firstName.validate(() => result.message!);
+      if (result.field === 'department') department.validate(() => result.message!);
+      return;
+    }
+
+    setDepartmentGroups(employeeRepo.getEmployeesByDepartment());
+    firstName.reset();
+    department.reset(departments[0]);
+  };
 
   return (
     <main>
       <h2>Employee List</h2>
+
       <div>
-        {employees.map((employee, index) => (
-          <div key={index}>
-            {employee.firstName} {employee.lastName} - {employee.department}
-          </div>
-          ))}
+        {departmentGroups.map((group) => (
+          group.employees.length > 0 && (
+            <div key={group.department}>
+              <h3>{group.department}</h3>
+              {group.employees.map((emp, i) => (
+                <p key={i}>{emp.firstName} {emp.lastName}</p>
+              ))}
+            </div>
+          )
+        ))}
       </div>
 
       <div>
-        <h3>Add New Employee</h3>
-        <form onSubmit={handleFormSubmit}>
+        <h3>Add Employee</h3>
+        <form onSubmit={handleSubmit}>
+
           <div>
-            <label htmlFor="firstName">First Name:</label>
+            <label>First Name</label>
             <input
-                type="text"
-                id="firstName"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                required
+              type="text"
+              value={firstName.value}
+              onChange={firstName.handleChange}
             />
+            {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
           </div>
 
           <div>
-          <label htmlFor="department">Department:</label>
-          <select
-            id="department"
-            name="department"
-            value={formData.department}
-            onChange={handleInputChange}
-            >
-              
-            <option value="Administration">Administration</option>
-            <option value="Audit">Audit</option>
-            <option value="Banking Operations">Banking Operations</option>
-            <option value="Communications">Communications</option>
-            <option value="Corporate Services">Corporate Services</option>
-            <option value="Facilities">Facilities</option>
-            <option value="Human Resources">Human Resources</option>
-            <option value="Information Technology">Information Technology</option>
-            <option value="IT Technician">IT Technician</option>
+            <label>Department</label>
+            <select value={department.value} onChange={department.handleChange}>
+              {departments.map((dept) => (
+                <option key={dept} value={dept}>{dept}</option>
+              ))}
             </select>
+            {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
           </div>
 
-          {error && <p style={{ color: 'red' }}>{error}</p>}
-
-          <button type="submit">Add Employee</button>
+          <button type="submit">Add</button>
 
         </form>
       </div>
