@@ -1,3 +1,4 @@
+// apis/roleRepo.ts
 import type { Role } from '../Role';
 
 let roles: Role[] = [
@@ -38,8 +39,8 @@ export const roleRepo = {
     roles = [...roles, role];
   },
 
-  // to check if a role title is already occupied
-  getByRoleTitle: (roleTitle: string): Role | undefined => {
+  // find by role title
+  findByRoleTitle: (roleTitle: string) => {
     return roles.find(r => r.role === roleTitle);
   },
 };
