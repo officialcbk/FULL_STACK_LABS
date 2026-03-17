@@ -3,11 +3,11 @@ import { roleService } from '../services/roleService';
 
 export const useRoleForm = (onSuccess: () => void) => {
   const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName]   = useState('');
+  const [lastName, setLastName] = useState('');
   const [roleTitle, setRoleTitle] = useState('');
 
   const [firstNameError, setFirstNameError] = useState('');
-  const [lastNameError, setLastNameError]  = useState('');
+  const [lastNameError, setLastNameError] = useState('');
   const [roleError, setRoleError] = useState('');
 
   const handleFirstNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,7 +25,7 @@ export const useRoleForm = (onSuccess: () => void) => {
     setRoleError('');
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     setFirstNameError('');
@@ -37,15 +37,11 @@ export const useRoleForm = (onSuccess: () => void) => {
       return;
     }
 
-    const result = roleService.createRole(firstName, lastName, roleTitle);
+    const result = await roleService.createRole(firstName, lastName, roleTitle);
 
     if (!result.success) {
-      if (result.field === 'firstName') {
-        setFirstNameError(result.message || '');
-      }
-      if (result.field === 'role') {
-        setRoleError(result.message || '');
-      }
+      if (result.field === 'firstName') setFirstNameError(result.message ?? '');
+      if (result.field === 'role') setRoleError(result.message ?? '');
       return;
     }
 

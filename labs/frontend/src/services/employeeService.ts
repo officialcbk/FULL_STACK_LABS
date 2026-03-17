@@ -1,18 +1,29 @@
 import { employeeRepo } from '../apis/employeeRepo';
+import type { DepartmentGroup } from '../apis/employeeRepo';
 
 export const employeeService = {
-  createEmployee: (firstName: string, department: string) => {
-    const validDepts = employeeRepo.getDepartments();
+  getEmployeesByDepartment: async (): Promise<DepartmentGroup[]> => {
+    return employeeRepo.getEmployeesByDepartment();
+  },
 
-    if (!validDepts.includes(department)) {
-      return { success: false, field: 'department', message: 'That department doesnt exist' };
-    }
-
+  createEmployee: async (
+    firstName: string,
+    lastName: string,
+    department: string
+  ): Promise<{ success: boolean; field?: string; message?: string }> => {
     if (firstName.trim().length < 3) {
       return { success: false, field: 'firstName', message: 'First name needs at least 3 characters' };
     }
+    if (!department) {
+      return { success: false, field: 'department', message: 'Department is required' };
+    }
 
-    employeeRepo.addEmployee({ firstName: firstName.trim(), lastName: '', department });
-    return { success: true };
+    try {
+      await employeeRepo.addEmployee({ firstName: firstName.trim(), lastName: lastName.trim(), department });
+      return { success: true };
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      return { success: false, field: 'general', message };
+    }
   },
 };

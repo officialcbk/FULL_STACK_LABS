@@ -1,18 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Role } from './Role';
-import { roleRepo } from './apis/roleRepo';
+import { roleService } from './services/roleService';
 import AddRole from './components/AddRole';
 
 const Organization = () => {
-  const [roles, setRoles] = useState<Role[]>(roleRepo.getRoles());
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loadError, setLoadError] = useState('');
+
+  const loadRoles = async () => {
+    try {
+      const data = await roleService.getRoles();
+      setRoles(data);
+    } catch {
+      setLoadError('Could not load roles. Is the backend running?');
+    }
+  };
+
+  // Load roles on mount
+  useEffect(() => {
+    void loadRoles();
+  }, []);
 
   const refreshRoles = () => {
-    setRoles(roleRepo.getRoles());
+    void loadRoles();
   };
 
   return (
     <main>
       <h2>Organization</h2>
+
+      {loadError && <p style={{ color: 'red' }}>{loadError}</p>}
 
       <div>
         {roles.map((person) => (

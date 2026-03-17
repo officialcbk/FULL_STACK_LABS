@@ -1,18 +1,44 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormInput } from './hooks/useFormInput';
 import { employeeService } from './services/employeeService';
-import { employeeRepo, type DepartmentGroup } from './apis/employeeRepo';
+import type { DepartmentGroup } from './apis/employeeRepo';
+
+// Departments list for the dropdown — fetched once from backend
+const DEPARTMENTS = [
+  'Administration',
+  'Audit',
+  'Banking Operations',
+  'Communications',
+  'Corporate Services',
+  'Facilities',
+  'Financial Services',
+  'Human Resources',
+  'Information Technology',
+  'IT Technician',
+];
 
 const Employees = () => {
-
-  const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>(employeeRepo.getEmployeesByDepartment());
-
-  const departments = employeeRepo.getDepartments();
+  const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>([]);
+  const [loadError, setLoadError] = useState('');
 
   const firstName = useFormInput('');
-  const department = useFormInput(departments[0]);
+  const lastName = useFormInput('');
+  const department = useFormInput(DEPARTMENTS[0]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Load employees on mount
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await employeeService.getEmployeesByDepartment();
+        setDepartmentGroups(data);
+      } catch {
+        setLoadError('Could not load employees. Is the backend running?');
+      }
+    };
+    void load();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const isValid = firstName.validate((val) => {
@@ -22,25 +48,35 @@ const Employees = () => {
 
     if (!isValid) return;
 
-    const result = employeeService.createEmployee(firstName.value, department.value);
+    const result = await employeeService.createEmployee(
+      firstName.value,
+      lastName.value,
+      department.value
+    );
 
     if (!result.success) {
-      if (result.field === 'firstName') firstName.validate(() => result.message!);
-      if (result.field === 'department') department.validate(() => result.message!);
+      if (result.field === 'firstName') firstName.validate(() => result.message ?? '');
+      if (result.field === 'department') department.validate(() => result.message ?? '');
       return;
     }
 
-    setDepartmentGroups(employeeRepo.getEmployeesByDepartment());
+    // Refresh list from backend after successful add
+    const updated = await employeeService.getEmployeesByDepartment();
+    setDepartmentGroups(updated);
+
     firstName.reset();
-    department.reset(departments[0]);
+    lastName.reset();
+    department.reset(DEPARTMENTS[0]);
   };
 
   return (
     <main>
       <h2>Employee List</h2>
 
+      {loadError && <p style={{ color: 'red' }}>{loadError}</p>}
+
       <div>
-        {departmentGroups.map((group) => (
+        {departmentGroups.map((group) =>
           group.employees.length > 0 && (
             <div key={group.department}>
               <h3>{group.department}</h3>
@@ -49,12 +85,12 @@ const Employees = () => {
               ))}
             </div>
           )
-        ))}
+        )}
       </div>
 
       <div>
         <h3>Add Employee</h3>
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e) => { void handleSubmit(e); }}>
 
           <div>
             <label>First Name</label>
@@ -67,9 +103,18 @@ const Employees = () => {
           </div>
 
           <div>
+            <label>Last Name</label>
+            <input
+              type="text"
+              value={lastName.value}
+              onChange={lastName.handleChange}
+            />
+          </div>
+
+          <div>
             <label>Department</label>
             <select value={department.value} onChange={department.handleChange}>
-              {departments.map((dept) => (
+              {DEPARTMENTS.map((dept) => (
                 <option key={dept} value={dept}>{dept}</option>
               ))}
             </select>

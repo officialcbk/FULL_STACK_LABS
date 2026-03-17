@@ -1,46 +1,23 @@
-// apis/roleRepo.ts
 import type { Role } from '../Role';
 
-let roles: Role[] = [
-  { firstName: 'Jo-Anne', lastName: 'Sinclair', role: 'CEO/Chair of Board' },
-  { firstName: 'Jackson', lastName: 'Smith', role: 'COO/VP Operations' },
-  { firstName: 'Susan', lastName: 'Thomas', role: 'CFO/VP Administration' },
-  { firstName: 'Richa', lastName: 'Kaur', role: 'VP Client Services' },
-  { firstName: 'Josee', lastName: 'Benjamin', role: 'CIO' },
-  { firstName: 'Vincent', lastName: 'Grey', role: 'VP Sales & Marketing' },
-  { firstName: 'Rupa', lastName: 'Kharki', role: 'Director Financial and Audit Svcs' },
-  { firstName: 'Xun', lastName: 'Kuang', role: 'Director Human Resources' },
-  { firstName: 'Stien', lastName: 'Pedersen', role: 'Director Legal Services/General Counsel' },
-  { firstName: 'Sandra', lastName: 'Bear', role: 'Director Information Technology' },
-  { firstName: 'Gus', lastName: 'Blue', role: 'Director Information Security and CISSO' },
-  { firstName: 'Sam', lastName: 'Kong', role: 'Director Accounting' },
-  { firstName: 'Valentine', lastName: 'Smith', role: 'Director Physical Security' },
-  { firstName: 'Mariya', lastName: 'Kaperski', role: 'Director Facilities' },
-  { firstName: 'Abd al-Hamid', lastName: 'Alami', role: 'Manager, Business Continuity and Disaster Recovery' },
-  { firstName: 'Victoria', lastName: 'Gray', role: 'Manager, Internal Audit' },
-  { firstName: 'Cheryl', lastName: 'Guru', role: 'Chief Architect' },
-  { firstName: 'Jean', lastName: 'Ngoy', role: 'Manager, Security Architecture' },
-  { firstName: 'Kris', lastName: 'Gold', role: 'Solution Architect, Online Banking' },
-  { firstName: 'Isaac', lastName: 'Smith', role: 'Manager, Application Solutions' },
-  { firstName: 'Payton', lastName: 'Frost', role: 'Lead Developer, Online Banking' },
-  { firstName: 'Samantha', lastName: 'Nettle', role: 'Manager, Operational Risk' },
-  { firstName: 'Yolanda', lastName: 'Ferreira', role: 'Manager, Vendor Relations' },
-  { firstName: 'Samir', lastName: 'Hassan', role: 'Manager, Purchasing' },
-  { firstName: 'Yuna', lastName: 'Aikawa', role: 'Manager, Communications' },
-  { firstName: 'Jonathan', lastName: 'Carberry', role: 'Manager Customer Experience and Community Eng.' },
-  { firstName: 'Roland', lastName: 'Wei', role: 'Manager of Sales' },
-  { firstName: 'Pran', lastName: 'Singh', role: 'Manager, Marketing' },
-];
+const BASE_URL = 'http://localhost:3000/api/roles';
 
 export const roleRepo = {
-  getRoles: () => roles,
-
-  addRole: (role: Role) => {
-    roles = [...roles, role];
+  getRoles: async (): Promise<Role[]> => {
+    const res = await fetch(BASE_URL);
+    if (!res.ok) throw new Error('Failed to fetch roles');
+    return res.json() as Promise<Role[]>;
   },
 
-  // find by role title
-  findByRoleTitle: (roleTitle: string) => {
-    return roles.find(r => r.role === roleTitle);
+  addRole: async (role: Role): Promise<void> => {
+    const res = await fetch(BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(role),
+    });
+    if (!res.ok) {
+      const err = await res.json() as { message?: string };
+      throw new Error(err.message ?? 'Failed to add role');
+    }
   },
 };

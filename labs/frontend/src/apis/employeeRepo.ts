@@ -1,84 +1,28 @@
-export interface Employee {
-  firstName: string;
-  lastName: string;
-  department: string;
-}
+import type { Employee } from "../Employee"
 
 export interface DepartmentGroup {
   department: string;
   employees: Employee[];
 }
 
-const departments = [
-  'Administration',
-  'Audit',
-  'Banking Operations',
-  'Communications',
-  'Corporate Services',
-  'Facilities',
-  'Financial Services',
-  'Human Resources',
-  'Information Technology',
-  'IT Technician',
-];
-
-let employees: Employee[] = [
-  { firstName: 'Zoë', lastName: 'Robins', department: 'Administration' },
-  { firstName: 'Madeleine', lastName: 'Madden', department: 'Administration' },
-  { firstName: 'Josha', lastName: 'Sadowski', department: 'Audit' },
-  { firstName: 'Kate', lastName: 'Fleetwood', department: 'Audit' },
-  { firstName: 'Priyanka', lastName: 'Bose', department: 'Banking Operations' },
-  { firstName: 'Hammed', lastName: 'Animashuan', department: 'Banking Operations' },
-  { firstName: 'Álvaro', lastName: 'Morte', department: 'Banking Operations' },
-  { firstName: 'Taylor', lastName: 'Napier', department: 'Banking Operations' },
-  { firstName: 'Alan', lastName: 'Simmonds', department: 'Banking Operations' },
-  { firstName: 'Gil', lastName: 'Cardinal', department: 'Communications' },
-  { firstName: 'Richard J.', lastName: 'Lewis', department: 'Communications' },
-  { firstName: 'Randy', lastName: 'Bradshaw', department: 'Corporate Services' },
-  { firstName: 'Tracey', lastName: 'Cook', department: 'Corporate Services' },
-  { firstName: 'Lubomir', lastName: 'Mykytiuk', department: 'Corporate Services' },
-  { firstName: 'Dakota', lastName: 'House', department: 'Facilities' },
-  { firstName: 'Lori Lea', lastName: 'Okemah', department: 'Facilities' },
-  { firstName: 'Renae', lastName: 'Morrisseau', department: 'Facilities' },
-  { firstName: 'Rick', lastName: 'Belcourt', department: 'Facilities' },
-  { firstName: 'Selina', lastName: 'Hanusa', department: 'Financial Services' },
-  { firstName: 'Buffy', lastName: 'Gaudry', department: 'Financial Services' },
-  { firstName: 'Shaneen Ann', lastName: 'Fox', department: 'Financial Services' },
-  { firstName: 'Allan', lastName: 'Little', department: 'Financial Services' },
-  { firstName: 'Danny', lastName: 'Rabbit', department: 'Financial Services' },
-  { firstName: 'Jesse Ed', lastName: 'Azure', department: 'Human Resources' },
-  { firstName: 'Stacy', lastName: 'Da Silva', department: 'Human Resources' },
-  { firstName: 'Vladimír', lastName: 'Valenta', department: 'Human Resources' },
-  { firstName: 'Samone', lastName: 'Sayeses-Whitney', department: 'Human Resources' },
-  { firstName: 'Paul', lastName: 'Coeur', department: 'Human Resources' },
-  { firstName: 'Graham', lastName: 'Greene', department: 'Information Technology' },
-  { firstName: 'Sandika', lastName: 'Evergreen', department: 'Information Technology' },
-  { firstName: 'Jennifer', lastName: 'Rodriguez', department: 'Information Technology' },
-  { firstName: 'Aiyana', lastName: 'Littlebear', department: 'IT Technician' },
-  { firstName: 'Inara', lastName: 'Thunderbird', department: 'IT Technician' },
-  { firstName: 'Kaya', lastName: 'Runningbrook', department: 'IT Technician' },
-  { firstName: 'Elara', lastName: 'Firehawk', department: 'IT Technician' },
-  { firstName: 'Siona', lastName: 'Moonflower', department: 'IT Technician' },
-  { firstName: 'Kaiyu', lastName: 'Greywolf', department: 'IT Technician' },
-  { firstName: 'Ayawamat', lastName: 'Nightwind', department: 'IT Technician' },
-  { firstName: 'Tala', lastName: 'Braveheart', department: 'IT Technician' },
-  { firstName: 'Iniko', lastName: 'Stonebear', department: 'IT Technician' },
-  { firstName: 'Onatah', lastName: 'Redhawk', department: 'IT Technician' },
-];
+const BASE_URL = 'http://localhost:3000/api/employees';
 
 export const employeeRepo = {
-  getEmployees: () => employees,
-
-  getDepartments: () => departments,
-
-  addEmployee: (emp: Employee) => {
-    employees = [...employees, emp];
+  getEmployeesByDepartment: async (): Promise<DepartmentGroup[]> => {
+    const res = await fetch(BASE_URL);
+    if (!res.ok) throw new Error('Failed to fetch employees');
+    return res.json() as Promise<DepartmentGroup[]>;
   },
 
-  getEmployeesByDepartment: () => {
-    return departments.map((dept) => ({
-      department: dept,
-      employees: employees.filter((emp) => emp.department === dept),
-    }));
+  addEmployee: async (emp: Employee): Promise<void> => {
+    const res = await fetch(BASE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(emp),
+    });
+    if (!res.ok) {
+      const err = await res.json() as { message?: string };
+      throw new Error(err.message ?? 'Failed to add employee');
+    }
   },
 };
