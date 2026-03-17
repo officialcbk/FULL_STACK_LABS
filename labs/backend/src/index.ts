@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import employeeRoutes from './routes/employeeRoutes.js';
+import roleRoutes from './routes/roleRoutes.js';
 
 const app = express();
 const PORT = 3000;
@@ -12,6 +13,7 @@ app.use(cors({
 app.use(express.json());
 
 app.use('/api/employees', employeeRoutes);
+app.use('/api/roles', roleRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
