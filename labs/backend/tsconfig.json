@@ -12,6 +12,6 @@
     "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*","src/generated/**/*"],
   "exclude": ["node_modules"]
 }
