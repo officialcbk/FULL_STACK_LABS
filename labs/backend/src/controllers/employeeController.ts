@@ -8,7 +8,7 @@ export const getEmployees = (req: Request, res: Response) => {
 
 export const addEmployee = (req: Request, res: Response) => {
   try {
-    const { firstName, lastName, department } = req.body; // ← added lastName
+    const { firstName, lastName, department } = req.body; 
     const result = employeeService.createEmployee(firstName, lastName, department);
     res.status(201).json(result);
   } catch (error: unknown) {
