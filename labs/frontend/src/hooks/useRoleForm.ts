@@ -5,7 +5,6 @@ export const useRoleForm = (onSuccess: () => void) => {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [roleTitle, setRoleTitle] = useState('');
-
   const [firstNameError, setFirstNameError] = useState('');
   const [lastNameError, setLastNameError] = useState('');
   const [roleError, setRoleError] = useState('');
@@ -14,20 +13,18 @@ export const useRoleForm = (onSuccess: () => void) => {
     setFirstName(e.target.value);
     setFirstNameError('');
   };
-
   const handleLastNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLastName(e.target.value);
     setLastNameError('');
   };
-
   const handleRoleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setRoleTitle(e.target.value);
     setRoleError('');
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // 👇 token is now a parameter
+  const handleSubmit = async (e: React.FormEvent, token: string) => {
     e.preventDefault();
-
     setFirstNameError('');
     setLastNameError('');
     setRoleError('');
@@ -37,7 +34,7 @@ export const useRoleForm = (onSuccess: () => void) => {
       return;
     }
 
-    const result = await roleService.createRole(firstName, lastName, roleTitle);
+    const result = await roleService.createRole(firstName, lastName, roleTitle, token);
 
     if (!result.success) {
       if (result.field === 'firstName') setFirstNameError(result.message ?? '');
@@ -48,20 +45,13 @@ export const useRoleForm = (onSuccess: () => void) => {
     setFirstName('');
     setLastName('');
     setRoleTitle('');
-
     onSuccess();
   };
 
   return {
-    firstName,
-    lastName,
-    roleTitle,
-    firstNameError,
-    lastNameError,
-    roleError,
-    handleFirstNameChange,
-    handleLastNameChange,
-    handleRoleChange,
+    firstName, lastName, roleTitle,
+    firstNameError, lastNameError, roleError,
+    handleFirstNameChange, handleLastNameChange, handleRoleChange,
     handleSubmit,
   };
 };

@@ -14,10 +14,13 @@ export const employeeRepo = {
     return res.json() as Promise<DepartmentGroup[]>;
   },
 
-  addEmployee: async (emp: Employee): Promise<void> => {
+  addEmployee: async (emp: Employee, token: string): Promise<void> => {
     const res = await fetch(BASE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify(emp),
     });
     if (!res.ok) {

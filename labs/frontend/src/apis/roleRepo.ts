@@ -9,10 +9,13 @@ export const roleRepo = {
     return res.json() as Promise<Role[]>;
   },
 
-  addRole: async (role: Role): Promise<void> => {
+  addRole: async (role: Role, token: string): Promise<void> => {
     const res = await fetch(BASE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
       body: JSON.stringify(role),
     });
     if (!res.ok) {

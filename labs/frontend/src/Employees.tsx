@@ -2,30 +2,23 @@ import { useState, useEffect } from 'react';
 import { useFormInput } from './hooks/useFormInput';
 import { employeeService } from './services/employeeService';
 import type { DepartmentGroup } from './apis/employeeRepo';
+import { useAuth, SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
 
-// Departments list for the dropdown — fetched once from backend
 const DEPARTMENTS = [
-  'Administration',
-  'Audit',
-  'Banking Operations',
-  'Communications',
-  'Corporate Services',
-  'Facilities',
-  'Financial Services',
-  'Human Resources',
-  'Information Technology',
-  'IT Technician',
+  'Administration', 'Audit', 'Banking Operations', 'Communications',
+  'Corporate Services', 'Facilities', 'Financial Services', 'Human Resources',
+  'Information Technology', 'IT Technician',
 ];
 
 const Employees = () => {
   const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>([]);
   const [loadError, setLoadError] = useState('');
+  const { getToken } = useAuth(); // 👈 get Clerk's getToken function
 
   const firstName = useFormInput('');
   const lastName = useFormInput('');
   const department = useFormInput(DEPARTMENTS[0]);
 
-  // Load employees on mount
   useEffect(() => {
     const load = async () => {
       try {
@@ -45,13 +38,15 @@ const Employees = () => {
       if (val.trim().length < 3) return 'First name needs at least 3 characters';
       return '';
     });
-
     if (!isValid) return;
+
+    const token = await getToken() ?? ''; //  fetch the token before calling the service
 
     const result = await employeeService.createEmployee(
       firstName.value,
       lastName.value,
-      department.value
+      department.value,
+      token //  pass it in
     );
 
     if (!result.success) {
@@ -60,10 +55,8 @@ const Employees = () => {
       return;
     }
 
-    // Refresh list from backend after successful add
     const updated = await employeeService.getEmployeesByDepartment();
     setDepartmentGroups(updated);
-
     firstName.reset();
     lastName.reset();
     department.reset(DEPARTMENTS[0]);
@@ -72,7 +65,6 @@ const Employees = () => {
   return (
     <main>
       <h2>Employee List</h2>
-
       {loadError && <p style={{ color: 'red' }}>{loadError}</p>}
 
       <div>
@@ -88,43 +80,40 @@ const Employees = () => {
         )}
       </div>
 
-      <div>
-        <h3>Add Employee</h3>
-        <form onSubmit={(e) => { void handleSubmit(e); }}>
+      {/*  Logged in: show the form. Logged out: show a login prompt */}
+      <SignedIn>
+        <div>
+          <h3>Add Employee</h3>
+          <form onSubmit={(e) => { void handleSubmit(e); }}>
+            <div>
+              <label>First Name</label>
+              <input type="text" value={firstName.value} onChange={firstName.handleChange} />
+              {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
+            </div>
+            <div>
+              <label>Last Name</label>
+              <input type="text" value={lastName.value} onChange={lastName.handleChange} />
+            </div>
+            <div>
+              <label>Department</label>
+              <select value={department.value} onChange={department.handleChange}>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+              {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
+            </div>
+            <button type="submit">Add</button>
+          </form>
+        </div>
+      </SignedIn>
 
-          <div>
-            <label>First Name</label>
-            <input
-              type="text"
-              value={firstName.value}
-              onChange={firstName.handleChange}
-            />
-            {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
-          </div>
-
-          <div>
-            <label>Last Name</label>
-            <input
-              type="text"
-              value={lastName.value}
-              onChange={lastName.handleChange}
-            />
-          </div>
-
-          <div>
-            <label>Department</label>
-            <select value={department.value} onChange={department.handleChange}>
-              {DEPARTMENTS.map((dept) => (
-                <option key={dept} value={dept}>{dept}</option>
-              ))}
-            </select>
-            {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
-          </div>
-
-          <button type="submit">Add</button>
-
-        </form>
-      </div>
+      <SignedOut>
+        <div>
+          <p>You must be logged in to add employees.</p>
+          <SignInButton mode="modal">Log in</SignInButton>
+        </div>
+      </SignedOut>
     </main>
   );
 };

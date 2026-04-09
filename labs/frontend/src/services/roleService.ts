@@ -9,7 +9,8 @@ export const roleService = {
   createRole: async (
     firstName: string,
     lastName: string,
-    roleTitle: string
+    roleTitle: string,
+    token: string
   ): Promise<{ success: boolean; field?: 'firstName' | 'role' | 'general'; message?: string }> => {
     const f = firstName.trim();
     const l = lastName.trim();
@@ -23,11 +24,10 @@ export const roleService = {
     }
 
     try {
-      await roleRepo.addRole({ firstName: f, lastName: l, role: r });
+      await roleRepo.addRole({ firstName: f, lastName: l, role: r }, token);
       return { success: true };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
-      // Backend returns 'That role is already occupied' as the message
       return { success: false, field: 'role', message };
     }
   },

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import type { Role } from './Role';
 import { roleService } from './services/roleService';
 import AddRole from './components/AddRole';
+import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
 
 const Organization = () => {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -38,8 +39,20 @@ const Organization = () => {
           </div>
         ))}
       </div>
-
+      
+      <SignedIn>
       <AddRole onRoleAdded={refreshRoles} />
+      </SignedIn>
+
+      <SignedOut>
+
+        <div>
+          <p>You must be logged in to add roles.</p>
+          <SignInButton mode="modal">Log in</SignInButton>
+        </div>
+        
+      </SignedOut>
+
     </main>
   );
 };

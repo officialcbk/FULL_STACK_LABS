@@ -9,7 +9,8 @@ export const employeeService = {
   createEmployee: async (
     firstName: string,
     lastName: string,
-    department: string
+    department: string,
+    token: string
   ): Promise<{ success: boolean; field?: string; message?: string }> => {
     if (firstName.trim().length < 3) {
       return { success: false, field: 'firstName', message: 'First name needs at least 3 characters' };
@@ -19,7 +20,10 @@ export const employeeService = {
     }
 
     try {
-      await employeeRepo.addEmployee({ firstName: firstName.trim(), lastName: lastName.trim(), department });
+      await employeeRepo.addEmployee(
+        { firstName: firstName.trim(), lastName: lastName.trim(), department },
+        token
+      );
       return { success: true };
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Unknown error';
