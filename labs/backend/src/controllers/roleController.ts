@@ -7,6 +7,13 @@ export const getRoles = (req: Request, res: Response) => {
 };
 
 export const addRole = (req: Request, res: Response) => {
+  //  Same auth check
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    res.status(401).json({ message: 'Unauthorized' });
+    return;
+  }
+
   try {
     const { firstName, lastName, role } = req.body;
     const result = roleService.createRole(firstName, lastName, role);
