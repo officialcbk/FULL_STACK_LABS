@@ -22,7 +22,7 @@ export const useRoleForm = (onSuccess: () => void) => {
     setRoleError('');
   };
 
-  // 👇 token is now a parameter
+  // token is now a parameter
   const handleSubmit = async (e: React.FormEvent, token: string) => {
     e.preventDefault();
     setFirstNameError('');

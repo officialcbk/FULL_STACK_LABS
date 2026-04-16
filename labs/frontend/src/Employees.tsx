@@ -13,7 +13,7 @@ const DEPARTMENTS = [
 const Employees = () => {
   const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>([]);
   const [loadError, setLoadError] = useState('');
-  const { getToken } = useAuth(); // 👈 get Clerk's getToken function
+  const { getToken } = useAuth(); // get Clerk's getToken function
 
   const firstName = useFormInput('');
   const lastName = useFormInput('');
