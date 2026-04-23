@@ -3,7 +3,7 @@ import { useFormInput } from './hooks/useFormInput';
 import { employeeService } from './services/employeeService';
 import type { DepartmentGroup } from './apis/employeeRepo';
 import { useAuth, SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
-import { useIsAdmin } from './hooks/useIsAdmin';
+import { useClerk } from '@clerk/clerk-react';
 
 const DEPARTMENTS = [
   'Administration', 'Audit', 'Banking Operations', 'Communications',
@@ -14,12 +14,12 @@ const DEPARTMENTS = [
 const Employees = () => {
   const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>([]);
   const [loadError, setLoadError] = useState('');
-  const { getToken } = useAuth(); // get Clerk's getToken function
-   const isAdmin = useIsAdmin();
+  const { getToken } = useAuth();
 
   const firstName = useFormInput('');
   const lastName = useFormInput('');
   const department = useFormInput(DEPARTMENTS[0]);
+  const { openSignIn } = useClerk();
 
   useEffect(() => {
     const load = async () => {
@@ -42,13 +42,13 @@ const Employees = () => {
     });
     if (!isValid) return;
 
-    const token = await getToken() ?? ''; //  fetch the token before calling the service
+    const token = await getToken() ?? '';
 
     const result = await employeeService.createEmployee(
       firstName.value,
       lastName.value,
       department.value,
-      token //  pass it in
+      token
     );
 
     if (!result.success) {
@@ -82,46 +82,40 @@ const Employees = () => {
         )}
       </div>
 
-      {/*  Logged in: show the form. Logged out: show a login prompt */}
-      <SignedIn>
-        {isAdmin ? (
-          // Admin sees the form
-          <div>
-            <h3>Add Employee</h3>
-            <form onSubmit={(e) => { void handleSubmit(e); }}>
-              <div>
-                <label>First Name</label>
-                <input type="text" value={firstName.value} onChange={firstName.handleChange} />
-                {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
-              </div>
-              <div>
-                <label>Last Name</label>
-                <input type="text" value={lastName.value} onChange={lastName.handleChange} />
-              </div>
-              <div>
-                <label>Department</label>
-                <select value={department.value} onChange={department.handleChange}>
-                  {DEPARTMENTS.map((dept) => (
-                    <option key={dept} value={dept}>{dept}</option>
-                  ))}
-                </select>
-                {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
-              </div>
-              <button type="submit">Add</button>
-            </form>
-          </div>
-        ) : (
-          // Logged in but not admin: show message
-          <p>You must be an administrator to add employees.</p>
-        )}
-      </SignedIn>
-
       <SignedOut>
         <div>
           <p>You must be logged in to add employees.</p>
-          <SignInButton mode="modal">Log in</SignInButton>
+          <button type="button" onClick={() => openSignIn()}>Log in</button>
         </div>
       </SignedOut>
+
+      <SignedIn>
+        <div>
+          <h3>Add Employee</h3>
+          <form onSubmit={(e) => { void handleSubmit(e); }}>
+            <div>
+              <label>First Name</label>
+              <input type="text" value={firstName.value} onChange={firstName.handleChange} />
+              {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
+            </div>
+            <div>
+              <label>Last Name</label>
+              <input type="text" value={lastName.value} onChange={lastName.handleChange} />
+            </div>
+            <div>
+              <label>Department</label>
+              <select value={department.value} onChange={department.handleChange}>
+                {DEPARTMENTS.map((dept) => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+              {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
+            </div>
+            <button type="submit">Add</button>
+          </form>
+        </div>
+      </SignedIn>
+
     </main>
   );
 };

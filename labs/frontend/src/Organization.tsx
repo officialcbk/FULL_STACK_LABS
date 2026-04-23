@@ -3,12 +3,12 @@ import type { Role } from './Role';
 import { roleService } from './services/roleService';
 import AddRole from './components/AddRole';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
-import { useIsAdmin } from './hooks/useIsAdmin';
+import { useClerk } from '@clerk/clerk-react';
 
 const Organization = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadError, setLoadError] = useState('');
-  const isAdmin = useIsAdmin();
+  const { openSignIn } = useClerk();
 
   const loadRoles = async () => {
     try {
@@ -19,7 +19,6 @@ const Organization = () => {
     }
   };
 
-  // Load roles on mount
   useEffect(() => {
     void loadRoles();
   }, []);
@@ -41,25 +40,17 @@ const Organization = () => {
           </div>
         ))}
       </div>
-      
-      <SignedIn>
-      {isAdmin ? (
-          // Admin sees the AddRole form
-          <AddRole onRoleAdded={refreshRoles} />
-        ) : (
-          // Logged in but not admin: show message
-          <p>You must be an administrator to add roles.</p>
-        )}
-      </SignedIn>
 
       <SignedOut>
-
         <div>
           <p>You must be logged in to add roles.</p>
-          <SignInButton mode="modal">Log in</SignInButton>
+          <button type="button" onClick={() => openSignIn()}>Log in</button>
         </div>
-        
       </SignedOut>
+
+      <SignedIn>
+        <AddRole onRoleAdded={refreshRoles} />
+      </SignedIn>
 
     </main>
   );
