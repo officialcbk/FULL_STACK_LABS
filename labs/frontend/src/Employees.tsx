@@ -3,6 +3,7 @@ import { useFormInput } from './hooks/useFormInput';
 import { employeeService } from './services/employeeService';
 import type { DepartmentGroup } from './apis/employeeRepo';
 import { useAuth, SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
+import { useIsAdmin } from './hooks/useIsAdmin';
 
 const DEPARTMENTS = [
   'Administration', 'Audit', 'Banking Operations', 'Communications',
@@ -14,6 +15,7 @@ const Employees = () => {
   const [departmentGroups, setDepartmentGroups] = useState<DepartmentGroup[]>([]);
   const [loadError, setLoadError] = useState('');
   const { getToken } = useAuth(); // get Clerk's getToken function
+   const isAdmin = useIsAdmin();
 
   const firstName = useFormInput('');
   const lastName = useFormInput('');
@@ -82,30 +84,36 @@ const Employees = () => {
 
       {/*  Logged in: show the form. Logged out: show a login prompt */}
       <SignedIn>
-        <div>
-          <h3>Add Employee</h3>
-          <form onSubmit={(e) => { void handleSubmit(e); }}>
-            <div>
-              <label>First Name</label>
-              <input type="text" value={firstName.value} onChange={firstName.handleChange} />
-              {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
-            </div>
-            <div>
-              <label>Last Name</label>
-              <input type="text" value={lastName.value} onChange={lastName.handleChange} />
-            </div>
-            <div>
-              <label>Department</label>
-              <select value={department.value} onChange={department.handleChange}>
-                {DEPARTMENTS.map((dept) => (
-                  <option key={dept} value={dept}>{dept}</option>
-                ))}
-              </select>
-              {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
-            </div>
-            <button type="submit">Add</button>
-          </form>
-        </div>
+        {isAdmin ? (
+          // Admin sees the form
+          <div>
+            <h3>Add Employee</h3>
+            <form onSubmit={(e) => { void handleSubmit(e); }}>
+              <div>
+                <label>First Name</label>
+                <input type="text" value={firstName.value} onChange={firstName.handleChange} />
+                {firstName.message && <p style={{ color: 'red' }}>{firstName.message}</p>}
+              </div>
+              <div>
+                <label>Last Name</label>
+                <input type="text" value={lastName.value} onChange={lastName.handleChange} />
+              </div>
+              <div>
+                <label>Department</label>
+                <select value={department.value} onChange={department.handleChange}>
+                  {DEPARTMENTS.map((dept) => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+                {department.message && <p style={{ color: 'red' }}>{department.message}</p>}
+              </div>
+              <button type="submit">Add</button>
+            </form>
+          </div>
+        ) : (
+          // Logged in but not admin: show message
+          <p>You must be an administrator to add employees.</p>
+        )}
       </SignedIn>
 
       <SignedOut>
