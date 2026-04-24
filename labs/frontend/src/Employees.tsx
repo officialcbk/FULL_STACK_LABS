@@ -3,7 +3,6 @@ import { useFormInput } from './hooks/useFormInput';
 import { employeeService } from './services/employeeService';
 import type { DepartmentGroup } from './apis/employeeRepo';
 import { useAuth, SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
-import { useClerk } from '@clerk/clerk-react';
 
 const DEPARTMENTS = [
   'Administration', 'Audit', 'Banking Operations', 'Communications',
@@ -19,7 +18,6 @@ const Employees = () => {
   const firstName = useFormInput('');
   const lastName = useFormInput('');
   const department = useFormInput(DEPARTMENTS[0]);
-  const { openSignIn } = useClerk();
 
   useEffect(() => {
     const load = async () => {
@@ -85,7 +83,7 @@ const Employees = () => {
       <SignedOut>
         <div>
           <p>You must be logged in to add employees.</p>
-          <button type="button" onClick={() => openSignIn()}>Log in</button>
+          <SignInButton mode="modal">Log in</SignInButton>
         </div>
       </SignedOut>
 
@@ -115,7 +113,6 @@ const Employees = () => {
           </form>
         </div>
       </SignedIn>
-
     </main>
   );
 };

@@ -3,12 +3,10 @@ import type { Role } from './Role';
 import { roleService } from './services/roleService';
 import AddRole from './components/AddRole';
 import { SignedIn, SignedOut, SignInButton } from '@clerk/clerk-react';
-import { useClerk } from '@clerk/clerk-react';
 
 const Organization = () => {
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadError, setLoadError] = useState('');
-  const { openSignIn } = useClerk();
 
   const loadRoles = async () => {
     try {
@@ -44,14 +42,13 @@ const Organization = () => {
       <SignedOut>
         <div>
           <p>You must be logged in to add roles.</p>
-          <button type="button" onClick={() => openSignIn()}>Log in</button>
+          <SignInButton mode="modal">Log in</SignInButton>
         </div>
       </SignedOut>
 
       <SignedIn>
         <AddRole onRoleAdded={refreshRoles} />
       </SignedIn>
-
     </main>
   );
 };

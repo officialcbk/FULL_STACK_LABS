@@ -1,9 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import { SignedIn, SignedOut, UserButton, useClerk } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, SignInButton } from '@clerk/clerk-react';
 
 const Navbar = () => {
-  const { openSignIn } = useClerk();
-
   return (
     <nav>
       <NavLink to="/employees">Employees</NavLink>
@@ -11,7 +9,7 @@ const Navbar = () => {
       <NavLink to="/organization">Organization</NavLink>
       {' | '}
       <SignedOut>
-        <button type="button" onClick={() => openSignIn()}>Log in</button>
+        <SignInButton mode="modal">Log in</SignInButton>
       </SignedOut>
       <SignedIn>
         <UserButton />
